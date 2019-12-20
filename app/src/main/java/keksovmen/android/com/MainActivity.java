@@ -3,8 +3,11 @@ package keksovmen.android.com;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TabHost;
 
@@ -15,10 +18,10 @@ import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Pipeline.SimpleComponent;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import keksovmen.android.com.Util.PageHolder;
+import keksovmen.android.com.Util.ProxyMapForPageHolder;
 import keksovmen.android.com.Views.ConversationView;
 import keksovmen.android.com.Views.MessageView;
 import keksovmen.android.com.Views.UsersView;
@@ -33,8 +36,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     private TabHost tabHost;
 
     private UsersView usersView;
-    private Map<String, LogicObserver> messageViewSet;
-    private Map<String, TabHost.TabSpec> openTabs;
+    private Map<String, PageHolder> openTabs;
     private ConversationView conversationView;
     private CustomCallDialog callDialog;
 
@@ -47,8 +49,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         application = (BaseApplication) getApplication();
 
         usersView = new UsersView(this, this, this::openMessageTabAction);
-        messageViewSet = new HashMap<>();
-        openTabs = new LinkedHashMap<>();
+        openTabs = new ProxyMapForPageHolder();
         conversationView = new ConversationView(this, this, () -> closeTabAction(CONVERSATION_TAB_NAME));
         callDialog = new CustomCallDialog(this);
 
@@ -61,11 +62,11 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         spec.setIndicator(MULTIPLE_PURPOSE_PANE_NAME);
         spec.setContent(tag -> usersView.getLayout());
 
-        tabHost.setCurrentTab(0);
         tabHost.addTab(spec);
 
 
-        openTabs.put(MULTIPLE_PURPOSE_PANE_NAME, spec);
+
+        openTabs.put(MULTIPLE_PURPOSE_PANE_NAME, new PageHolder(spec, MULTIPLE_PURPOSE_PANE_NAME, usersView));
 
         application.getLiveData().observe(this, this::update);
 
@@ -73,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         tabHost.setOnTabChangedListener(tabId -> {
             if (tabId.equals(MULTIPLE_PURPOSE_PANE_NAME))
                 systemService.hideSoftInputFromWindow(tabHost.getCurrentTabView().getWindowToken(), 0);
+            PageHolder holder = openTabs.get(tabId);
+            if (holder != null) {
+                tabHost.getTabWidget().getChildTabViewAt(holder.getIndexOnPane()).clearAnimation();
+                holder.setDisplayUnreadMessage(false);
+            }
         });
 
 
@@ -85,6 +91,14 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isFinishing()) {
+            handleRequest(BUTTONS.DISCONNECT, null);
+        }
+    }
+
+    @Override
     public void handleRequest(BUTTONS buttons, Object[] objects) {
         application.handleRequest(buttons, objects);
     }
@@ -93,8 +107,11 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     public void observe(ACTIONS actions, Object[] objects) {
         switch (actions) {
             case INCOMING_MESSAGE:
-                if ((Integer) objects[2] == 0)
+                if ((Integer) objects[2] == 0) {
                     openMessagePane((BaseUser) objects[0]);
+                } else {
+                    animateAnReadMessages(openTabs.get(CONVERSATION_TAB_NAME));
+                }
                 break;
             case INCOMING_CALL:
                 handleCall(objects);
@@ -114,16 +131,20 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
             case EXITED_CONVERSATION:
                 closeTabAction(CONVERSATION_TAB_NAME);
                 break;
+            case CONNECTION_TO_SERVER_FAILED:
+                onConnectionFailure();
+                break;
             case DISCONNECTED:
                 finish();
+                break;
+            case CALLED_BUT_BUSY:
+                openMessagePane((BaseUser) objects[0]);
                 break;
 
         }
 
         callDialog.observe(actions, objects);
-        conversationView.observe(actions, objects);
-        if (messageViewSet.size() != 0)
-            messageViewSet.forEach((string, logicObserver) -> logicObserver.observe(actions, objects));
+        openTabs.forEach((s, pageHolder) -> pageHolder.observe(actions, objects));
     }
 
     @Override
@@ -132,62 +153,67 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         conversationView.update(unEditableModel);
     }
 
+    private void onConnectionFailure() {
+        Intent result = new Intent();
+        result.putExtra(EntranceActivity.STATUS_CODE, EntranceActivity.ResultCodes.STATUS_NETWORK_FAILURE.toString());
+        setResult(RESULT_OK, result);
+        finish();
+    }
+
+
     private void openMessagePane(BaseUser user) {
-        TabHost.TabSpec index = openTabs.get(user.toString());
-        if (index == null) {
+        PageHolder holder = openTabs.get(user.toString());
+        if (holder == null) {
             //Create new pane
             //And you should register it as observer
             MessageView messageView = new MessageView(this, this, createCloseAction(user), user);
-            addMessagePane(user.toString(), messageView);
+            holder = addMessagePane(user.toString(), messageView);
+            //put some type of indicator by color or whatever
         }
-        //put some type of indicator by color or whatever
-//        tabHost.getTabWidget().getChildTabViewAt().startAnimation(null);
-//        tabHost.getTabWidget().getChildTabViewAt(tabHost.getTabWidget().getChildTabViewAt().)
+        if (tabHost.getCurrentTab() != holder.getIndexOnPane())
+            animateAnReadMessages(holder);
     }
 
     private void openMessageTabAction(BaseUser forWho) {
         String dudeAsString = forWho.toString();
-        TabHost.TabSpec index = openTabs.get(dudeAsString);
-        if (index == null) {
+        PageHolder holder = openTabs.get(dudeAsString);
+        if (holder == null) {
             MessageView messageView = new MessageView(this, this, createCloseAction(forWho), forWho);
-            tabHost.setCurrentTabByTag(addMessagePane(dudeAsString, messageView).getTag());
-//            messageView.onShow();
+            tabHost.setCurrentTab(addMessagePane(dudeAsString, messageView).getIndexOnPane());
         } else {
-            tabHost.setCurrentTabByTag(index.getTag());
+            tabHost.setCurrentTab(holder.getIndexOnPane());
         }
     }
 
 
-    private TabHost.TabSpec addMessagePane(String pageName, MessageView messageView) {
-        messageViewSet.put(pageName, messageView);
-        return addTab(pageName, messageView.getLayout());
+    private PageHolder addMessagePane(String pageName, MessageView messageView) {
+        return addTab(pageName, messageView.getLayout(), messageView);
     }
 
-    private TabHost.TabSpec addTab(String tabName, View view) {
-        if (openTabs.containsKey(tabName))
-            return openTabs.get(tabName);
+    private PageHolder addTab(String tabName, View view, LogicObserver observer) {
         TabHost.TabSpec spec = tabHost.newTabSpec(tabName);
         spec.setIndicator(tabName);
         spec.setContent(tag -> view);
 
-        openTabs.put(tabName, spec);
+        PageHolder holder = new PageHolder(spec, tabName, observer);
+        openTabs.put(tabName, holder);
 
         tabHost.addTab(spec);
-        return spec;
+        return holder;
     }
 
     private Runnable createCloseAction(BaseUser user) {
-        return () -> {
-            messageViewSet.remove(user.toString());
-            closeTabAction(user.toString());
-        };
+        return () -> closeTabAction(user.toString());
     }
 
     private void closeTabAction(String paneName) {
-        TabHost.TabSpec remove = openTabs.remove(paneName);
+        PageHolder remove = openTabs.remove(paneName);
         if (remove != null) {
+            for (int i = 0; i < tabHost.getTabWidget().getTabCount(); i++) { // if you wound't do this then animations on this tabs will fuck up so much that you will hate your existence
+                tabHost.getTabWidget().getChildTabViewAt(i).clearAnimation();
+            }
             tabHost.clearAllTabs();
-            openTabs.values().forEach(tabSpec -> tabHost.addTab(tabSpec));
+            openTabs.values().forEach(this::fillTabHostAfterClearing);
         }
     }
 
@@ -198,7 +224,22 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     }
 
     private void onCallAccept() {
-        tabHost.setCurrentTabByTag(addTab(CONVERSATION_TAB_NAME, conversationView.getLayout()).getTag());
+        tabHost.setCurrentTab(addTab(CONVERSATION_TAB_NAME, conversationView.getLayout(), conversationView).getIndexOnPane());
+    }
+
+    private void animateAnReadMessages(PageHolder holder) {
+        if (holder.getIndexOnPane() == -1)
+            throw new IllegalArgumentException("-1 indicate that some one didn't set index field on PageHolder");
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade);
+        tabHost.getTabWidget().getChildTabViewAt(holder.getIndexOnPane()).startAnimation(animation);
+        holder.setDisplayUnreadMessage(true);
+    }
+
+    private void fillTabHostAfterClearing(PageHolder holder) {
+        tabHost.addTab(holder.getContent());
+        if (holder.isDisplayUnreadMessage() && tabHost.getCurrentTab() != holder.getIndexOnPane()) {
+            animateAnReadMessages(holder);
+        }
     }
 
 }

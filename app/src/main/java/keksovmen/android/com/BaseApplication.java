@@ -1,35 +1,24 @@
 package keksovmen.android.com;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.Abstraction.Client.AbstractClient;
 import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Client.LogicObserver;
-import com.Abstraction.Model.ClientModelBase;
 import com.Abstraction.Model.UnEditableModel;
-import com.Abstraction.Model.Updater;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Pipeline.CompositeComponent;
-import com.Abstraction.Util.Interfaces.Registration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import keksovmen.android.com.Implementation.AndroidApplicationFactory;
@@ -46,7 +35,6 @@ public class BaseApplication extends Application implements CompositeComponent {
 
 
     private volatile LogicObserver state;
-
 
 
     @Override
@@ -165,7 +153,7 @@ public class BaseApplication extends Application implements CompositeComponent {
         return true;
     }
 
-    public static void showDialog(Context context, String message){
+    public static void showDialog(Context context, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(message);
         builder.show();

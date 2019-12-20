@@ -2,11 +2,8 @@ package keksovmen.android.com.Views;
 
 import android.content.Context;
 import android.text.InputType;
-import android.view.KeyEvent;
-import android.view.KeyboardShortcutGroup;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -49,14 +46,11 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
         closeButton.setId(View.generateViewId());
 
 
-//        textInput.setOnKeyListener((v, keyCode, event) -> {
-//            if (keyCode == KeyEvent.KEYCODE_ENTER)
-//                sendMessage();
-//            return true;
-//        });
         textInput.setInputType(InputType.TYPE_CLASS_TEXT);
         textInput.setOnClickListener(v -> sendMessage());
         closeButton.setOnClickListener(v -> onCloseButtonClick());
+
+        textInput.setTooltipText("Type here");
     }
 
     public ConstraintLayout getLayout() {
@@ -111,12 +105,12 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
 
     protected abstract boolean shouldDisplay(BaseUser from, int toConversation);
 
-    private void showMessage(String from, String message) {
+    protected void showMessage(String from, String message) {
         messageDisplay.setText(messageDisplay.getText() +
                 from + " (" + FormatWorker.getTime() + ") - " + message + "\n");
     }
 
-    private void displayMyMessage(String message){
+    protected void showMyMessage(String message){
         messageDisplay.setText(messageDisplay.getText() +
                 "Me" + " (" + FormatWorker.getTime() + ") - " + message + "\n");
     }
@@ -129,7 +123,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
             return;
         textInput.getText().clear();
         handleRequest(BUTTONS.SEND_MESSAGE, new Object[]{message, getReceiverId()});
-        displayMyMessage(message);
+        showMyMessage(message);
     }
 
     private void displayMessage(BaseUser from, String message, int toConversation) {
@@ -140,8 +134,8 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
     protected abstract void onClose();
 
     private void onCloseButtonClick(){
-        InputMethodManager systemService = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        systemService.hideSoftInputFromWindow(textInput.getWindowToken(), 0);
+//        InputMethodManager systemService = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+//        systemService.hideSoftInputFromWindow(textInput.getWindowToken(), 0);
         closeAction.run();
         onClose();
     }

@@ -1,5 +1,6 @@
 package keksovmen.android.com.Views;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,6 +67,8 @@ public class UsersView implements SimpleComponent {
 
         disconnectButton.setOnClickListener(v -> onDisconnectPress());
         refreshButton.setOnClickListener(v -> onRefreshPressed());
+
+//        usersPlace.setLayoutTransition(new LayoutTransition());
 
     }
 

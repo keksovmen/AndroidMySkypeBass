@@ -31,6 +31,8 @@ public class SettingsEntry {
 
         volumeBar = new SeekBar(context);
         volumeBar.setOnSeekBarChangeListener(new VolumeBarListener());
+        volumeBar.setProgress(100);
+
 
         layout.addView(nameLabel);
         layout.addView(volumeBar);
