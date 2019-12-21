@@ -1,4 +1,4 @@
-package keksovmen.android.com.Implementation;
+package keksovmen.android.com.Implementation.Util;
 
 import android.util.Xml;
 
@@ -44,7 +44,9 @@ public class XMLWorker {
             }
             String tag = parser.getName();
             if (tag.equals("file")) {
-                result.add(readFileEntry(parser));
+                Pair<String, String> pair = readFileEntry(parser);
+                if (pair != null)
+                    result.add(pair);
             } else {
                 skip(parser);
             }
@@ -56,6 +58,7 @@ public class XMLWorker {
         parser.require(XmlPullParser.START_TAG, ns, "file");
         String name = null;
         String description = null;
+        boolean isActivated = readActiveAtributeOnFile(parser);
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -72,8 +75,23 @@ public class XMLWorker {
                     break;
             }
         }
-        return new Pair<>(name, description);
+        if (isActivated)
+            return new Pair<>(name, description);
+        else
+            return null;
 
+    }
+
+    private static boolean readActiveAtributeOnFile(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, "file");
+        String tagName = parser.getName();
+        String attValue = parser.getAttributeValue(ns, "enabled");
+        if (tagName.equals("file")) {
+            if (attValue.equals("true")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String readName(XmlPullParser parser) throws IOException, XmlPullParserException {

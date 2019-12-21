@@ -6,7 +6,7 @@ import com.Abstraction.Audio.Output.AbstractCallNotificator;
 
 import java.io.IOException;
 
-import keksovmen.android.com.BaseApplication;
+import keksovmen.android.com.Implementation.BaseApplication;
 
 public class AndroidCallNotificator extends AbstractCallNotificator {
 
@@ -23,8 +23,8 @@ public class AndroidCallNotificator extends AbstractCallNotificator {
             player.prepare();
             player.setLooping(true);
             player.start();
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
             isWorking = false;
         }
         return true;

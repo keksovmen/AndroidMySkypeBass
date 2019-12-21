@@ -18,7 +18,7 @@ import com.Abstraction.Util.Resources;
 import java.io.IOException;
 import java.util.Map;
 
-import keksovmen.android.com.BaseApplication;
+import keksovmen.android.com.Implementation.BaseApplication;
 
 public class AndroidAudioHelper extends AudioHelper {
 
@@ -31,19 +31,22 @@ public class AndroidAudioHelper extends AudioHelper {
     @Override
     public AudioOutputLine getOutput(int i, AbstractAudioFormat abstractAudioFormat) throws AudioLineException {
         AudioTrack.Builder builder = new AudioTrack.Builder();
+
         AudioFormat.Builder formatBuilder = new AudioFormat.Builder();
         formatBuilder.setEncoding(AudioFormat.ENCODING_PCM_16BIT);
         formatBuilder.setSampleRate(abstractAudioFormat.getSampleRate());
         formatBuilder.setChannelMask(AudioFormat.CHANNEL_OUT_MONO);
+
         builder.setAudioFormat(formatBuilder.build());
         builder.setAudioAttributes(new AudioAttributes.Builder().
                 setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).
                 setUsage(AudioAttributes.USAGE_MEDIA).
                 build());
+
         int bufferSize = MIC_CAPTURE_SIZE * 2;// if too high there is a huge delay before start playing if too small there are glitches, play with it
         builder.setBufferSizeInBytes(bufferSize);
-        AudioTrack track = builder.build();
 
+        AudioTrack track = builder.build();
         track.play();
         return new AndroidOutput(track, abstractAudioFormat);
     }
@@ -62,8 +65,8 @@ public class AndroidAudioHelper extends AudioHelper {
                     Resources.getInstance().getNotificationTracks().get(trackId).name));
             player.prepare();
             player.start();
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
             player.release();
             return;
         }
@@ -82,10 +85,12 @@ public class AndroidAudioHelper extends AudioHelper {
     @Override
     public AudioInputLine getInput(int i, AbstractAudioFormat abstractAudioFormat) throws AudioLineException {
         AudioRecord.Builder builder = new AudioRecord.Builder();
+
         AudioFormat.Builder formatBuilder = new AudioFormat.Builder();
         formatBuilder.setEncoding(AudioFormat.ENCODING_PCM_16BIT);
         formatBuilder.setSampleRate(abstractAudioFormat.getSampleRate());
         formatBuilder.setChannelMask(AudioFormat.CHANNEL_IN_MONO);
+
         builder.setAudioFormat(formatBuilder.build());
         builder.setAudioSource(MediaRecorder.AudioSource.MIC);
         builder.setBufferSizeInBytes(MIC_CAPTURE_SIZE * 4);

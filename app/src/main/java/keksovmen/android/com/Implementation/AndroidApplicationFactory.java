@@ -13,6 +13,8 @@ import com.Abstraction.Util.AbstractResources;
 
 import keksovmen.android.com.Implementation.Audio.AndroidAudioFactory;
 import keksovmen.android.com.Implementation.Audio.AndroidAudioHelper;
+import keksovmen.android.com.Implementation.Client.AndroidClient;
+import keksovmen.android.com.Implementation.Util.AndroidResources;
 
 public class AndroidApplicationFactory extends AbstractApplicationFactory {
 

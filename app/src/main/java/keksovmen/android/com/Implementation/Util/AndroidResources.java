@@ -1,4 +1,4 @@
-package keksovmen.android.com.Implementation;
+package keksovmen.android.com.Implementation.Util;
 
 import com.Abstraction.Util.AbstractResources;
 import com.Abstraction.Util.Collection.Pair;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import keksovmen.android.com.BaseApplication;
+import keksovmen.android.com.Implementation.BaseApplication;
 
 public class AndroidResources extends AbstractResources {
 

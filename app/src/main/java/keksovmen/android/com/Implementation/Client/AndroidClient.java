@@ -1,4 +1,4 @@
-package keksovmen.android.com.Implementation;
+package keksovmen.android.com.Implementation.Client;
 
 import com.Abstraction.Client.AbstractClient;
 import com.Abstraction.Model.ChangeableModel;

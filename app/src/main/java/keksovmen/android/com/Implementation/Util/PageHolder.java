@@ -1,4 +1,4 @@
-package keksovmen.android.com.Util;
+package keksovmen.android.com.Implementation.Util;
 
 import android.widget.TabHost;
 
@@ -36,9 +36,6 @@ public class PageHolder implements LogicObserver {
 
     public PageHolder(TabHost.TabSpec content, String tabName, LogicObserver observer) {
         this(content, tabName, observer, -1, false);
-//        this.content = content;
-//        this.tabName = tabName;
-//        this.observer = observer;
     }
 
     @Override

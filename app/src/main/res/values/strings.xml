@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HelloWord</string>
+    <string name="app_name">Skype Bass</string>
     <string name="connectButton">Connect</string>
     <string name="enter_message">Enter a message</string>
 </resources>

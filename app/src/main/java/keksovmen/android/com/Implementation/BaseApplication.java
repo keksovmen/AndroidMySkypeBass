@@ -1,4 +1,4 @@
-package keksovmen.android.com;
+package keksovmen.android.com.Implementation;
 
 import android.app.AlertDialog;
 import android.app.Application;
@@ -17,21 +17,25 @@ import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Pipeline.CompositeComponent;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import keksovmen.android.com.Implementation.AndroidApplicationFactory;
+import java.util.Queue;
 
 public class BaseApplication extends Application implements CompositeComponent {
 
-    public static final List<ACTIONS> actionsMapping = Arrays.asList(ACTIONS.values());
+    public static final int TEXT_SIZE = 20;
+    public static final List<ACTIONS> actionsMapping = Collections.unmodifiableList(Arrays.asList(ACTIONS.values()));
     private static Context context;
 
     private Handler handler;
 
     private List<ButtonsHandler> listeners;
     private MutableLiveData<UnEditableModel> liveData;
+
+    private Queue<Message> messageQueue;
 
 
     private volatile LogicObserver state;
@@ -47,11 +51,11 @@ public class BaseApplication extends Application implements CompositeComponent {
 
         liveData = new MutableLiveData<>();
 
+        messageQueue = new ArrayDeque<>(8);
+
         AndroidApplicationFactory factory = new AndroidApplicationFactory(this);
         com.Abstraction.Application application = new com.Abstraction.Application(factory);
         application.start();
-//        Main.getInstance().init();
-//        Main.getInstance().attachFrame(this);
     }
 
     @Override
@@ -59,7 +63,6 @@ public class BaseApplication extends Application implements CompositeComponent {
         switch (buttons) {
             //do your action as proxy
         }
-//        Main.getInstance().handleRequest(buttons, objects);
         listeners.forEach(buttonsHandler -> buttonsHandler.handleRequest(buttons, objects));
     }
 
@@ -92,65 +95,30 @@ public class BaseApplication extends Application implements CompositeComponent {
         return liveData;
     }
 
-    public synchronized void setState(LogicObserver holder) {
+    public void setState(LogicObserver holder) {
         System.out.println("STATE CHANGED TO - " + holder);
         state = holder;
-//        if (lastSignificantAction != null)
-//            state.getObserver().observe(lastSignificantAction, null);
-        notify();
+        Message m;
+        while ((m = messageQueue.poll()) != null) {
+            processMessage(m);
+        }
     }
 
-//    public synchronized void setLastSignificantAction(ACTIONS action) {
-//        lastSignificantAction = action;
-//    }
-
-//    public void showCallDialog(boolean isIncoming, BaseUser who, String dudes){
-//        callDialog.showDialog(isIncoming, who, dudes, state.getManager());
-//    }
 
     private boolean handlerActions(Message message) {
+        if (state == null) {
+            messageQueue.add(message);
+            return true;
+        }
+        processMessage(message);
+        return true;
+    }
+
+    private void processMessage(Message message) {
         ACTIONS actions = actionsMapping.get(message.what);
         Object[] data = (Object[]) message.obj;
-//        switch (actions){
-//            case OUT_CALL:{
-//                showCallDialog(false, (BaseUser) data[0], null);
-//                return true;
-//            }
-//            case INCOMING_CALL:{
-//                showCallDialog(true, (BaseUser) data[0], (String) data[1]);
-//                return true;
-//            }
-//            case CALL_DENIED:{
-//                showDenyDialog((BaseUser)data[0]);
-//                return true;
-//
-//            }
-//            case CALL_CANCELLED: {
-//                showCancelDialog((BaseUser)data[0]);
-//                return true;
-//            }
-//            case CALL_ACCEPTED:{
-//                onCallAccept();
-//                break;
-////                return true;
-//            }
-//        }
-
-
-        //Think about this mess seems like a fucking trap
-        while (state == null) {
-            synchronized (this) {
-                try {
-                    wait();
-                } catch (InterruptedException ignored) {
-                    ignored.printStackTrace();
-                }
-            }
-        }
 
         state.observe(actions, data);
-
-        return true;
     }
 
     public static void showDialog(Context context, String message) {

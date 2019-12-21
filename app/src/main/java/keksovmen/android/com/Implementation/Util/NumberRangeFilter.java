@@ -1,4 +1,4 @@
-package keksovmen.android.com.Implementation;
+package keksovmen.android.com.Implementation.Util;
 
 import android.text.InputFilter;
 import android.text.Spanned;

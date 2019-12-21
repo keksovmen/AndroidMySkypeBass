@@ -1,4 +1,4 @@
-package keksovmen.android.com;
+package keksovmen.android.com.Implementation.Views.SmallParts;
 
 import android.content.Context;
 import android.view.View;
@@ -39,13 +39,12 @@ public class SettingsEntry {
 
     }
 
-    public View getPane(){
+    public View getPane() {
         return layout;
     }
 
 
-
-    private class VolumeBarListener implements SeekBar.OnSeekBarChangeListener{
+    private class VolumeBarListener implements SeekBar.OnSeekBarChangeListener {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

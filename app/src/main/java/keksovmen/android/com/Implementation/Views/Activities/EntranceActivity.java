@@ -1,4 +1,4 @@
-package keksovmen.android.com;
+package keksovmen.android.com.Implementation.Views.Activities;
 
 import android.Manifest;
 import android.animation.Animator;
@@ -24,7 +24,9 @@ import com.Abstraction.Client.LogicObserver;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 
-import keksovmen.android.com.Implementation.NumberRangeFilter;
+import keksovmen.android.com.Implementation.BaseApplication;
+import keksovmen.android.com.Implementation.Util.NumberRangeFilter;
+import keksovmen.android.com.R;
 
 public class EntranceActivity extends AppCompatActivity implements LogicObserver {
 
@@ -54,6 +56,7 @@ public class EntranceActivity extends AppCompatActivity implements LogicObserver
         hostNameField = findViewById(R.id.host_name_field);
         portField = findViewById(R.id.port_field);
         progressLayout = findViewById(R.id.progress_circular);
+
         portField.setFilters(new InputFilter[]{new NumberRangeFilter(0, 0xffff)});
     }
 
@@ -69,14 +72,13 @@ public class EntranceActivity extends AppCompatActivity implements LogicObserver
     }
 
     public void connect(View view) {
-
-
         Object[] data = new String[3];
         data[0] = nameField.getText().toString();
         data[1] = hostNameField.getText().toString();
         data[2] = portField.getText().toString();
-        //add format checks
+
         animationOnConnectInProgress(connectButton);
+
         application.handleRequest(BUTTONS.CONNECT, data);
     }
 

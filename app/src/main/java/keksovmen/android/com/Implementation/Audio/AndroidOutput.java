@@ -22,7 +22,7 @@ public class AndroidOutput implements AudioOutputLine {
 
     @Override
     public void setVolume(int i) {
-        output.setVolume(i / 100);
+        output.setVolume(i / 100f);
     }
 
 

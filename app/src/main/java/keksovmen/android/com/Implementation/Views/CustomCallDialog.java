@@ -1,8 +1,7 @@
-package keksovmen.android.com;
+package keksovmen.android.com.Implementation.Views;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -34,21 +33,19 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (isIncoming){
+        if (isIncoming) {
             builder.setTitle("Incoming call from");
             if (dudes != null && dudes.length() > 0) {
                 builder.setMessage(user.toString() + "\nDudes in conversation with:\n" + dudes);
-            }else {
+            } else {
                 builder.setMessage(user.toString());
             }
             builder.setPositiveButton("Accept", this::onAccept);
             builder.setNegativeButton("Deny", this::onDeny);
-        }else {
+        } else {
             builder.setTitle("Out going call to");
             builder.setMessage(user.toString());
             builder.setNegativeButton("Cancel", this::onCancel);
-//            builder.setCancelable(false);
-//            builder.setOnCancelListener(dialog -> onCancel(dialog, -1));
         }
 
         return builder.create();
@@ -57,16 +54,16 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        if (isIncoming){
+        if (isIncoming) {
             onDeny(dialog, -1);
-        }else {
+        } else {
             onCancel(dialog, -1);
         }
     }
 
     @Override
     public void handleRequest(BUTTONS buttons, Object[] objects) {
-        switch (buttons){
+        switch (buttons) {
             case CALL_ACCEPTED:
             case CALL_DENIED:
             case CALL_CANCELLED:
@@ -78,7 +75,7 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
 
     @Override
     public void observe(ACTIONS actions, Object[] objects) {
-        switch (actions){
+        switch (actions) {
             case CALL_ACCEPTED:
             case CALL_DENIED:
             case CALL_CANCELLED:
@@ -87,29 +84,29 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
         }
     }
 
-    public void showIncomingDialog(BaseUser caller, String hisDudes, FragmentManager manager){
+    public void showIncomingDialog(BaseUser caller, String hisDudes, FragmentManager manager) {
         isIncoming = true;
         user = caller;
         dudes = hisDudes;
         show(manager, "call_dialog");
     }
 
-    public void showOutcomingDialog(BaseUser whoYouCall, FragmentManager manager){
+    public void showOutcomingDialog(BaseUser whoYouCall, FragmentManager manager) {
         isIncoming = false;
         user = whoYouCall;
         dudes = null;
         show(manager, "call_dialog");
     }
 
-    private void onCancel(DialogInterface dialog, int which){
+    private void onCancel(DialogInterface dialog, int which) {
         handleRequest(BUTTONS.CALL_CANCELLED, new Object[]{user, null});
     }
 
-    private void onAccept(DialogInterface dialog, int which){
+    private void onAccept(DialogInterface dialog, int which) {
         handleRequest(BUTTONS.CALL_ACCEPTED, new Object[]{user, dudes});
     }
 
-    private void onDeny(DialogInterface dialog, int which){
+    private void onDeny(DialogInterface dialog, int which) {
         handleRequest(BUTTONS.CALL_DENIED, new Object[]{user, dudes});
     }
 }

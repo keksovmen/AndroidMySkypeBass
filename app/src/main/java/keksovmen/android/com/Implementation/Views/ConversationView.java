@@ -1,10 +1,9 @@
-package keksovmen.android.com.Views;
+package keksovmen.android.com.Implementation.Views;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Switch;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -20,36 +19,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import keksovmen.android.com.SettingsEntry;
+import keksovmen.android.com.Implementation.Views.SmallParts.ControlPane;
+import keksovmen.android.com.Implementation.Views.SmallParts.SettingsEntry;
 
 public class ConversationView extends BaseMessagingView implements Updater {
 
-    private final Switch muteSwitch;
+    private final ControlPane controlPane;
     private final LinearLayout audioSettingPane;
     private final Map<BaseUser, SettingsEntry> settingsEntryMap;
 
 
     public ConversationView(Context context, ButtonsHandler helpHandler, Runnable closeAction) {
         super(context, helpHandler, closeAction);
-        muteSwitch = new Switch(context);
+
+        controlPane = new ControlPane(context, helpHandler);
         audioSettingPane = new LinearLayout(context);
 
         settingsEntryMap = new HashMap<>();
 
-        muteSwitch.setId(View.generateViewId());
         audioSettingPane.setId(View.generateViewId());
+
         audioSettingPane.setOrientation(LinearLayout.VERTICAL);
 
-        ConstraintLayout.LayoutParams switchParam = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-        switchParam.rightToRight = layout.getId();
-        switchParam.topToTop = layout.getId();
-
-        layout.addView(muteSwitch, switchParam);
-
         closeButton.setText("Exit conference");
-        muteSwitch.setText("Mute");
-        muteSwitch.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
-        muteSwitch.setOnClickListener(v -> handleRequest(BUTTONS.MUTE, null));
 
         build(context);
 
@@ -78,18 +70,19 @@ public class ConversationView extends BaseMessagingView implements Updater {
     @Override
     public void observe(ACTIONS actions, Object[] objects) {
         super.observe(actions, objects);
-        switch (actions){
-            case EXITED_CONVERSATION:{
+        switch (actions) {
+            case EXITED_CONVERSATION: {
                 clearAllData();
                 break;
             }
         }
+        controlPane.observe(actions, objects);
     }
 
     @Override
     protected ConstraintLayout.LayoutParams createMessageParam() {
         ConstraintLayout.LayoutParams messageParam = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT);
-        messageParam.topToBottom = muteSwitch.getId();
+        messageParam.topToBottom = controlPane.getMainLayout().getId();
         messageParam.bottomToTop = textInput.getId();
         return messageParam;
     }
@@ -104,10 +97,10 @@ public class ConversationView extends BaseMessagingView implements Updater {
 
         ScrollView messageScroll = new ScrollView(context);
         messageScroll.addView(messageDisplay);
+        messageScroll.setScrollbarFadingEnabled(false);
 
-
-        linearLayout.addView(settingScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
-        linearLayout.addView(messageScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+        linearLayout.addView(settingScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.5f));
+        linearLayout.addView(messageScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
         return linearLayout;
     }
@@ -127,6 +120,20 @@ public class ConversationView extends BaseMessagingView implements Updater {
         handleRequest(BUTTONS.EXIT_CONFERENCE, null);
     }
 
+    @Override
+    protected void build(Context context) {
+        super.build(context);
+        layout.addView(controlPane.getMainLayout(), createControlParams());
+    }
+
+    protected ConstraintLayout.LayoutParams createControlParams() {
+        ConstraintLayout.LayoutParams controlParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+        controlParams.topToTop = layout.getId();
+        controlParams.startToStart = layout.getId();
+        controlParams.endToEnd = layout.getId();
+        return controlParams;
+    }
+
     private void addUserSetting(BaseUser user) {
         SettingsEntry entry = new SettingsEntry(user, context, this);
         settingsEntryMap.put(user, entry);
@@ -139,8 +146,7 @@ public class ConversationView extends BaseMessagingView implements Updater {
             audioSettingPane.removeView(remove.getPane());
     }
 
-    private void clearAllData(){
-        muteSwitch.setChecked(false);
+    private void clearAllData() {
         messageDisplay.setText("");
     }
 

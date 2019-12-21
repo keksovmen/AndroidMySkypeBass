@@ -1,6 +1,5 @@
-package keksovmen.android.com.Views;
+package keksovmen.android.com.Implementation.Views;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,13 +22,15 @@ import com.Abstraction.Pipeline.SimpleComponent;
 
 import java.util.function.Consumer;
 
+import keksovmen.android.com.Implementation.BaseApplication;
+
 
 public class UsersView implements SimpleComponent {
 
     private static final String SEND_MESSAGE = "Send message";
     private static final String CALL = "call";
 
-    private final ConstraintLayout layout;
+    private final ConstraintLayout mainLayout;
     private final LinearLayout usersPlace;
     private final LinearLayout buttonHolder;
     private final Button disconnectButton;
@@ -37,10 +38,11 @@ public class UsersView implements SimpleComponent {
 
     private final Context context;
     private final ButtonsHandler helpHandlerPredecessor;
-    private final Consumer<BaseUser> openMessagePane;
+    private final Consumer<BaseUser> openMessagePaneCommand;
 
-    public UsersView(Context context, ButtonsHandler helpHandlerPredecessor, Consumer<BaseUser> openMessagePane) {
-        layout = new ConstraintLayout(context);
+
+    public UsersView(Context context, ButtonsHandler helpHandlerPredecessor, Consumer<BaseUser> openMessagePaneCommand) {
+        mainLayout = new ConstraintLayout(context);
         usersPlace = new LinearLayout(context);
         buttonHolder = new LinearLayout(context);
         disconnectButton = new Button(context);
@@ -48,27 +50,23 @@ public class UsersView implements SimpleComponent {
 
         this.context = context;
         this.helpHandlerPredecessor = helpHandlerPredecessor;
-        this.openMessagePane = openMessagePane;
+        this.openMessagePaneCommand = openMessagePaneCommand;
 
-        layout.setId(View.generateViewId());
+        usersPlace.setOrientation(LinearLayout.VERTICAL);
+        buttonHolder.setOrientation(LinearLayout.HORIZONTAL);
+
+        mainLayout.setId(View.generateViewId());
         buttonHolder.setId(View.generateViewId());
 
-
-        ConstraintLayout.LayoutParams layoutParamsDisplay = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT);
-        layoutParamsDisplay.topToTop = layout.getId();
-        layoutParamsDisplay.bottomToTop = buttonHolder.getId();
-        layout.addView(createUsersDisplay(context), layoutParamsDisplay);
-
-
-        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0);
-        layoutParams.bottomToBottom = layout.getId();
-        layout.addView(createButtonLayout(), layoutParams);
+        mainLayout.addView(createUsersDisplay(context), createDisplayParams());
+        mainLayout.addView(createButtonLayout(), createButtonsParams());
 
 
         disconnectButton.setOnClickListener(v -> onDisconnectPress());
         refreshButton.setOnClickListener(v -> onRefreshPressed());
 
-//        usersPlace.setLayoutTransition(new LayoutTransition());
+        refreshButton.setText("Refresh");
+        disconnectButton.setText("Disconnect");
 
     }
 
@@ -90,6 +88,11 @@ public class UsersView implements SimpleComponent {
 
     }
 
+    public ConstraintLayout getMainLayout() {
+        return mainLayout;
+    }
+
+
     private void addUser(BaseUser user) {
         usersPlace.addView(createTextViewForUser(user));
     }
@@ -97,12 +100,9 @@ public class UsersView implements SimpleComponent {
     private TextView createTextViewForUser(BaseUser user) {
         TextView textView = new TextView(context);
         textView.setText(user.toString());
-        textView.setTextSize(20);
+        textView.setTextSize(BaseApplication.TEXT_SIZE);
 
-        PopupMenu popupMenu = new PopupMenu(context, textView);
-        Menu menu = popupMenu.getMenu();
-        menu.add(SEND_MESSAGE);
-        menu.add(CALL);
+        PopupMenu popupMenu = createPopUpMenuForUser(textView);
         popupMenu.setOnMenuItemClickListener(new PopupUserListener(user, textView));
 
         textView.setOnClickListener(v -> popupMenu.show());
@@ -110,24 +110,41 @@ public class UsersView implements SimpleComponent {
         return textView;
     }
 
+    private PopupMenu createPopUpMenuForUser(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(context, anchor);
+        Menu menu = popupMenu.getMenu();
+        menu.add(SEND_MESSAGE);
+        menu.add(CALL);
+        return popupMenu;
+    }
+
     private ScrollView createUsersDisplay(Context context) {
         ScrollView scrollView = new ScrollView(context);
-        usersPlace.setOrientation(LinearLayout.VERTICAL);
         scrollView.addView(usersPlace);
-
         return scrollView;
     }
 
+    private ConstraintLayout.LayoutParams createDisplayParams() {
+        ConstraintLayout.LayoutParams layoutParamsDisplay = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT);
+        layoutParamsDisplay.topToTop = mainLayout.getId();
+        layoutParamsDisplay.bottomToTop = buttonHolder.getId();
+        layoutParamsDisplay.leftToLeft = mainLayout.getId();
+        layoutParamsDisplay.rightToRight = mainLayout.getId();
+        return layoutParamsDisplay;
+    }
+
     private LinearLayout createButtonLayout() {
-        refreshButton.setText("Refresh");
-
-        disconnectButton.setText("Disconnect");
-
-        buttonHolder.setOrientation(LinearLayout.HORIZONTAL);
-
         buttonHolder.addView(refreshButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         buttonHolder.addView(disconnectButton, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         return buttonHolder;
+    }
+
+    private ConstraintLayout.LayoutParams createButtonsParams() {
+        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0);
+        layoutParams.bottomToBottom = mainLayout.getId();
+        layoutParams.leftToLeft = mainLayout.getId();
+        layoutParams.rightToRight = mainLayout.getId();
+        return layoutParams;
     }
 
     private void onDisconnectPress() {
@@ -136,10 +153,6 @@ public class UsersView implements SimpleComponent {
 
     private void onRefreshPressed() {
         handleRequest(BUTTONS.ASC_FOR_USERS, null);
-    }
-
-    public ConstraintLayout getLayout() {
-        return layout;
     }
 
 
@@ -160,7 +173,7 @@ public class UsersView implements SimpleComponent {
             String title = item.getTitle().toString();
             switch (title) {
                 case SEND_MESSAGE: {
-                    openMessagePane.accept(user);
+                    openMessagePaneCommand.accept(user);
                     break;
                 }
                 case CALL: {

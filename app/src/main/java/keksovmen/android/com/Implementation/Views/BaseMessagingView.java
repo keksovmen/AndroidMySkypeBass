@@ -1,4 +1,4 @@
-package keksovmen.android.com.Views;
+package keksovmen.android.com.Implementation.Views;
 
 import android.content.Context;
 import android.text.InputType;
@@ -99,6 +99,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
 
     protected View createMessagePane(Context context) {
         ScrollView scrollView = new ScrollView(context);
+        scrollView.setScrollbarFadingEnabled(false);
         scrollView.addView(messageDisplay);
         return scrollView;
     }
@@ -134,8 +135,6 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
     protected abstract void onClose();
 
     private void onCloseButtonClick(){
-//        InputMethodManager systemService = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//        systemService.hideSoftInputFromWindow(textInput.getWindowToken(), 0);
         closeAction.run();
         onClose();
     }
