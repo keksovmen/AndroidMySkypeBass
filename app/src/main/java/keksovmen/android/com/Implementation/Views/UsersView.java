@@ -82,7 +82,7 @@ public class UsersView implements SimpleComponent {
     }
 
     @Override
-    public void update(UnEditableModel unEditableModel) {
+    public void modelObservation(UnEditableModel unEditableModel) {
         usersPlace.removeAllViews();
         unEditableModel.getUserMap().values().forEach(this::addUser);
 

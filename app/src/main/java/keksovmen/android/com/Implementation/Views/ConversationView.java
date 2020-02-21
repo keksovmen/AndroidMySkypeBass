@@ -8,8 +8,8 @@ import android.widget.ScrollView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.Abstraction.Client.ButtonsHandler;
+import com.Abstraction.Model.ModelObserver;
 import com.Abstraction.Model.UnEditableModel;
-import com.Abstraction.Model.Updater;
 import com.Abstraction.Networking.Utility.Users.BaseUser;
 import com.Abstraction.Networking.Utility.WHO;
 import com.Abstraction.Pipeline.ACTIONS;
@@ -22,7 +22,7 @@ import java.util.Set;
 import keksovmen.android.com.Implementation.Views.SmallParts.ControlPane;
 import keksovmen.android.com.Implementation.Views.SmallParts.SettingsEntry;
 
-public class ConversationView extends BaseMessagingView implements Updater {
+public class ConversationView extends BaseMessagingView implements ModelObserver {
 
     private final ControlPane controlPane;
     private final LinearLayout audioSettingPane;
@@ -48,7 +48,7 @@ public class ConversationView extends BaseMessagingView implements Updater {
     }
 
     @Override
-    public void update(UnEditableModel unEditableModel) {
+    public void modelObservation(UnEditableModel unEditableModel) {
         Set<BaseUser> conversation = unEditableModel.getConversation();
 
         Map<BaseUser, SettingsEntry> tmp = new HashMap<>();

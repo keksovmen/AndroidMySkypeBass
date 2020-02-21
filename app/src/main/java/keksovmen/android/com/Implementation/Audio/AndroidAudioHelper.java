@@ -10,10 +10,10 @@ import android.media.MediaRecorder;
 import com.Abstraction.Audio.Helper.AudioHelper;
 import com.Abstraction.Audio.Input.AudioInputLine;
 import com.Abstraction.Audio.Misc.AbstractAudioFormat;
+import com.Abstraction.Audio.Misc.AbstractAudioFormatWithMic;
 import com.Abstraction.Audio.Misc.AudioLineException;
 import com.Abstraction.Audio.Output.AudioOutputLine;
-import com.Abstraction.Util.FormatWorker;
-import com.Abstraction.Util.Resources;
+import com.Abstraction.Util.Resources.Resources;
 
 import java.io.IOException;
 import java.util.Map;
@@ -120,19 +120,28 @@ public class AndroidAudioHelper extends AudioHelper {
         return null;
     }
 
-    @Override
-    public AbstractAudioFormat getAudioFormat() {
-        return format;
-    }
 
     @Override
-    public boolean isFormatSupported(String s) {
-        AbstractAudioFormat abstractFormat = FormatWorker.parseAudioFormat(s);
-        if (abstractFormat.getSampleSizeInBits() / 8 != 2)
+    public boolean isFormatSupported(AbstractAudioFormatWithMic abstractAudioFormatWithMic) {
+        if (abstractAudioFormatWithMic.getSampleSizeInBits() / 8 != 2)
             return false;
-        int micSize = FormatWorker.parseMicCaptureSize(s);
-        format = abstractFormat;
-        MIC_CAPTURE_SIZE = micSize;
-        return true;
-    }
+        format = abstractAudioFormatWithMic;
+        MIC_CAPTURE_SIZE = abstractAudioFormatWithMic.getMicCaptureSize();
+        return true;    }
+
+//    @Override
+//    public AbstractAudioFormat getAudioFormat() {
+//        return format;
+//    }
+//
+//    @Override
+//    public boolean isFormatSupported(String s) {
+//        AbstractAudioFormat abstractFormat = FormatWorker.parseAudioFormat(s);
+//        if (abstractFormat.getSampleSizeInBits() / 8 != 2)
+//            return false;
+//        int micSize = FormatWorker.parseMicCaptureSize(s);
+//        format = abstractFormat;
+//        MIC_CAPTURE_SIZE = micSize;
+//        return true;
+//    }
 }

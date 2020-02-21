@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
 
         setupInitialStateForTabHost();
 
-        application.getLiveData().observe(this, this::update);
+        application.getLiveData().observe(this, this::modelObservation);
 
         tabHost.setOnTabChangedListener(createTabChangeListener());
 
@@ -143,9 +143,9 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     }
 
     @Override
-    public void update(UnEditableModel unEditableModel) {
-        usersView.update(unEditableModel);
-        conversationView.update(unEditableModel);
+    public void modelObservation(UnEditableModel unEditableModel) {
+        usersView.modelObservation(unEditableModel);
+        conversationView.modelObservation(unEditableModel);
     }
 
     private void onConnectionFailure() {

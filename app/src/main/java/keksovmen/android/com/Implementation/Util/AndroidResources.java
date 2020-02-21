@@ -1,8 +1,8 @@
 package keksovmen.android.com.Implementation.Util;
 
-import com.Abstraction.Util.AbstractResources;
 import com.Abstraction.Util.Collection.Pair;
 import com.Abstraction.Util.Collection.Track;
+import com.Abstraction.Util.Resources.AbstractResources;
 
 import java.io.IOException;
 import java.util.ArrayList;

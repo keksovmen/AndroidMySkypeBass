@@ -26,7 +26,7 @@ public class AndroidMicrophone extends AbstractMicrophone {
     }
 
     @Override
-    public void IncreaseBass(int i) {
+    public void changeBassLevel(int i) {
         currentLvl = Algorithms.findPercentage(MIN_LVL, MAX_LVL, i);
     }
 

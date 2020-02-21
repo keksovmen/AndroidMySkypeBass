@@ -76,8 +76,9 @@ public class BaseApplication extends Application implements CompositeComponent {
 
     }
 
+
     @Override
-    public void update(UnEditableModel unEditableModel) {
+    public void modelObservation(UnEditableModel unEditableModel) {
         liveData.postValue(unEditableModel);
     }
 

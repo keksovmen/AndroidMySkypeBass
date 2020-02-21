@@ -9,7 +9,7 @@ import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Model.ChangeableModel;
 import com.Abstraction.Pipeline.CompositeComponent;
 import com.Abstraction.Pipeline.SimpleComponent;
-import com.Abstraction.Util.AbstractResources;
+import com.Abstraction.Util.Resources.AbstractResources;
 
 import keksovmen.android.com.Implementation.Audio.AndroidAudioFactory;
 import keksovmen.android.com.Implementation.Audio.AndroidAudioHelper;
