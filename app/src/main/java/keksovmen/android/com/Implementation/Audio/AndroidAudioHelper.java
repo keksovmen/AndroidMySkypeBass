@@ -24,8 +24,8 @@ public class AndroidAudioHelper extends AudioHelper {
 
     private static final String ROOT_TO_NOTIFICATIONS = "sounds/notifications/";
 
-    private AbstractAudioFormat format;
-    private int MIC_CAPTURE_SIZE;
+//    private AbstractAudioFormat format;
+    private int micCaptureSize;
 
 
     @Override
@@ -43,7 +43,7 @@ public class AndroidAudioHelper extends AudioHelper {
                 setUsage(AudioAttributes.USAGE_MEDIA).
                 build());
 
-        int bufferSize = MIC_CAPTURE_SIZE * 2;// if too high there is a huge delay before start playing if too small there are glitches, play with it
+        int bufferSize = micCaptureSize * 2;// if too high there is a huge delay before start playing if too small there are glitches, play with it
         builder.setBufferSizeInBytes(bufferSize);
 
         AudioTrack track = builder.build();
@@ -53,7 +53,7 @@ public class AndroidAudioHelper extends AudioHelper {
 
     @Override
     public AudioOutputLine getOutput(int i) throws AudioLineException {
-        return getOutput(i, format);
+        return getOutput(i, getDefaultAudioFormat());
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AndroidAudioHelper extends AudioHelper {
 
         builder.setAudioFormat(formatBuilder.build());
         builder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        builder.setBufferSizeInBytes(MIC_CAPTURE_SIZE * 4);
+        builder.setBufferSizeInBytes(micCaptureSize * 4);
 
         AudioRecord record = builder.build();
         record.startRecording();
@@ -102,12 +102,12 @@ public class AndroidAudioHelper extends AudioHelper {
 
     @Override
     public AudioInputLine getInput(int i) throws AudioLineException {
-        return getInput(i, format);
+        return getInput(i, getDefaultAudioFormat());
     }
 
     @Override
     public int getMicCaptureSize() {
-        return MIC_CAPTURE_SIZE;
+        return micCaptureSize;
     }
 
     @Override
@@ -125,9 +125,10 @@ public class AndroidAudioHelper extends AudioHelper {
     public boolean isFormatSupported(AbstractAudioFormatWithMic abstractAudioFormatWithMic) {
         if (abstractAudioFormatWithMic.getSampleSizeInBits() / 8 != 2)
             return false;
-        format = abstractAudioFormatWithMic;
-        MIC_CAPTURE_SIZE = abstractAudioFormatWithMic.getMicCaptureSize();
-        return true;    }
+        setDefaultFormat(abstractAudioFormatWithMic);
+        micCaptureSize = abstractAudioFormatWithMic.getMicCaptureSize();
+        return true;
+    }
 
 //    @Override
 //    public AbstractAudioFormat getAudioFormat() {
@@ -141,7 +142,7 @@ public class AndroidAudioHelper extends AudioHelper {
 //            return false;
 //        int micSize = FormatWorker.parseMicCaptureSize(s);
 //        format = abstractFormat;
-//        MIC_CAPTURE_SIZE = micSize;
+//        micCaptureSize = micSize;
 //        return true;
 //    }
 }

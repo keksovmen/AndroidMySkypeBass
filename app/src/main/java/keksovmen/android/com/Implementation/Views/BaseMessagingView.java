@@ -13,7 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Client.LogicObserver;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Util.FormatWorker;
@@ -66,7 +66,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
     public void observe(ACTIONS actions, Object[] objects) {
         switch (actions) {
             case INCOMING_MESSAGE:
-                displayMessage((BaseUser) objects[0], (String) objects[1], (int) objects[2]);
+                displayMessage((User) objects[0], (String) objects[1], (int) objects[2]);
                 break;
 
         }
@@ -104,7 +104,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
         return scrollView;
     }
 
-    protected abstract boolean shouldDisplay(BaseUser from, int toConversation);
+    protected abstract boolean shouldDisplay(User from, int toConversation);
 
     protected void showMessage(String from, String message) {
         messageDisplay.setText(messageDisplay.getText() +
@@ -127,7 +127,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
         showMyMessage(message);
     }
 
-    private void displayMessage(BaseUser from, String message, int toConversation) {
+    private void displayMessage(User from, String message, int toConversation) {
         if (shouldDisplay(from, toConversation))
             showMessage(from.toString(), message);
     }

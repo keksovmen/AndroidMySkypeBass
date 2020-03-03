@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Model.ModelObserver;
 import com.Abstraction.Model.UnEditableModel;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Networking.Utility.WHO;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
@@ -26,7 +26,7 @@ public class ConversationView extends BaseMessagingView implements ModelObserver
 
     private final ControlPane controlPane;
     private final LinearLayout audioSettingPane;
-    private final Map<BaseUser, SettingsEntry> settingsEntryMap;
+    private final Map<User, SettingsEntry> settingsEntryMap;
 
 
     public ConversationView(Context context, ButtonsHandler helpHandler, Runnable closeAction) {
@@ -49,9 +49,9 @@ public class ConversationView extends BaseMessagingView implements ModelObserver
 
     @Override
     public void modelObservation(UnEditableModel unEditableModel) {
-        Set<BaseUser> conversation = unEditableModel.getConversation();
+        Set<User> conversation = unEditableModel.getConversation();
 
-        Map<BaseUser, SettingsEntry> tmp = new HashMap<>();
+        Map<User, SettingsEntry> tmp = new HashMap<>();
 
         settingsEntryMap.forEach((user, userSettings) -> {
             if (!conversation.contains(user))
@@ -106,7 +106,7 @@ public class ConversationView extends BaseMessagingView implements ModelObserver
     }
 
     @Override
-    protected boolean shouldDisplay(BaseUser from, int toConversation) {
+    protected boolean shouldDisplay(User from, int toConversation) {
         return toConversation == 1;
     }
 
@@ -134,13 +134,13 @@ public class ConversationView extends BaseMessagingView implements ModelObserver
         return controlParams;
     }
 
-    private void addUserSetting(BaseUser user) {
+    private void addUserSetting(User user) {
         SettingsEntry entry = new SettingsEntry(user, context, this);
         settingsEntryMap.put(user, entry);
         audioSettingPane.addView(entry.getPane());
     }
 
-    private void removeUserSetting(BaseUser user) {
+    private void removeUserSetting(User user) {
         SettingsEntry remove = settingsEntryMap.remove(user);
         if (remove != null)
             audioSettingPane.removeView(remove.getPane());

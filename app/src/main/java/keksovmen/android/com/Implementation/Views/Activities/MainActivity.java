@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.Abstraction.Client.LogicObserver;
 import com.Abstraction.Model.UnEditableModel;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Pipeline.SimpleComponent;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         switch (actions) {
             case INCOMING_MESSAGE:
                 if ((Integer) objects[2] == 0) {
-                    openMessagePane((BaseUser) objects[0]);
+                    openMessagePane((User) objects[0]);
                 } else {
                     animateAnReadMessages(openTabs.get(CONVERSATION_TAB_NAME));
                 }
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
                 handleCall(objects);
                 break;
             case OUT_CALL:
-                callDialog.showOutcomingDialog((BaseUser) objects[0], getSupportFragmentManager());
+                callDialog.showOutcomingDialog((User) objects[0], getSupportFragmentManager());
                 break;
             case CALL_ACCEPTED:
                 onCallAccept();
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
                 finish();
                 break;
             case CALLED_BUT_BUSY:
-                openMessagePane((BaseUser) objects[0]);
+                openMessagePane((User) objects[0]);
                 break;
 
         }
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     }
 
 
-    private void openMessagePane(BaseUser user) {
+    private void openMessagePane(User user) {
         PageHolder holder = openTabs.get(user.toString());
         if (holder == null) {
             MessageView messageView = new MessageView(this, this, createCloseAction(user), user);
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
             animateAnReadMessages(holder);
     }
 
-    private void openMessageTabCommand(BaseUser forWho) {
+    private void openMessageTabCommand(User forWho) {
         String dudeAsString = forWho.toString();
         PageHolder holder = openTabs.get(dudeAsString);
         if (holder == null) {
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         return holder;
     }
 
-    private Runnable createCloseAction(BaseUser user) {
+    private Runnable createCloseAction(User user) {
         return () -> closeTabAction(user.toString());
     }
 
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     }
 
     private void handleCall(Object[] data) {
-        BaseUser who = (BaseUser) data[0];
+        User who = (User) data[0];
         String dudes = (String) data[1];
         callDialog.showIncomingDialog(who, dudes, getSupportFragmentManager());
     }

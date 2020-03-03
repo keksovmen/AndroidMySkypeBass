@@ -3,14 +3,14 @@ package keksovmen.android.com.Implementation.Views;
 import android.content.Context;
 
 import com.Abstraction.Client.ButtonsHandler;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 
 public class MessageView extends BaseMessagingView {
 
-    private final BaseUser dude;
+    private final User dude;
 
-    public MessageView(Context context, ButtonsHandler helpHandler, Runnable closeAction, BaseUser dude) {
+    public MessageView(Context context, ButtonsHandler helpHandler, Runnable closeAction, User dude) {
         super(context, helpHandler, closeAction);
         this.dude = dude;
         build(context);
@@ -20,7 +20,7 @@ public class MessageView extends BaseMessagingView {
     }
 
     @Override
-    protected boolean shouldDisplay(BaseUser from, int toConversation) {
+    protected boolean shouldDisplay(User from, int toConversation) {
         return toConversation == 0 && from.getId() == dude.getId();
     }
 

@@ -7,7 +7,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.Abstraction.Client.ButtonsHandler;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.BUTTONS;
 
 public class SettingsEntry {
@@ -16,10 +16,10 @@ public class SettingsEntry {
     private final TextView nameLabel;
     private final SeekBar volumeBar;
 
-    private final BaseUser user;
+    private final User user;
     private final ButtonsHandler helpHandlerPredecessor;
 
-    public SettingsEntry(BaseUser user, Context context, ButtonsHandler helpHandlerPredecessor) {
+    public SettingsEntry(User user, Context context, ButtonsHandler helpHandlerPredecessor) {
         this.user = user;
         this.helpHandlerPredecessor = helpHandlerPredecessor;
 

@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Client.LogicObserver;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 
@@ -21,7 +21,7 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
     private final ButtonsHandler helpHandlerPredecessor;
 
     private boolean isIncoming;
-    private BaseUser user;
+    private User user;
     private String dudes;
 
     public CustomCallDialog(ButtonsHandler helpHandlerPredecessor) {
@@ -84,14 +84,14 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
         }
     }
 
-    public void showIncomingDialog(BaseUser caller, String hisDudes, FragmentManager manager) {
+    public void showIncomingDialog(User caller, String hisDudes, FragmentManager manager) {
         isIncoming = true;
         user = caller;
         dudes = hisDudes;
         show(manager, "call_dialog");
     }
 
-    public void showOutcomingDialog(BaseUser whoYouCall, FragmentManager manager) {
+    public void showOutcomingDialog(User whoYouCall, FragmentManager manager) {
         isIncoming = false;
         user = whoYouCall;
         dudes = null;

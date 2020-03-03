@@ -15,7 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Model.UnEditableModel;
-import com.Abstraction.Networking.Utility.Users.BaseUser;
+import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 import com.Abstraction.Pipeline.SimpleComponent;
@@ -38,10 +38,10 @@ public class UsersView implements SimpleComponent {
 
     private final Context context;
     private final ButtonsHandler helpHandlerPredecessor;
-    private final Consumer<BaseUser> openMessagePaneCommand;
+    private final Consumer<User> openMessagePaneCommand;
 
 
-    public UsersView(Context context, ButtonsHandler helpHandlerPredecessor, Consumer<BaseUser> openMessagePaneCommand) {
+    public UsersView(Context context, ButtonsHandler helpHandlerPredecessor, Consumer<User> openMessagePaneCommand) {
         mainLayout = new ConstraintLayout(context);
         usersPlace = new LinearLayout(context);
         buttonHolder = new LinearLayout(context);
@@ -93,11 +93,11 @@ public class UsersView implements SimpleComponent {
     }
 
 
-    private void addUser(BaseUser user) {
+    private void addUser(User user) {
         usersPlace.addView(createTextViewForUser(user));
     }
 
-    private TextView createTextViewForUser(BaseUser user) {
+    private TextView createTextViewForUser(User user) {
         TextView textView = new TextView(context);
         textView.setText(user.toString());
         textView.setTextSize(BaseApplication.TEXT_SIZE);
@@ -158,10 +158,10 @@ public class UsersView implements SimpleComponent {
 
     private class PopupUserListener implements PopupMenu.OnMenuItemClickListener {
 
-        private final BaseUser user;
+        private final User user;
         private final View textView;
 
-        public PopupUserListener(BaseUser user, View textView) {
+        public PopupUserListener(User user, View textView) {
             this.user = user;
             this.textView = textView;
         }
