@@ -23,7 +23,7 @@ public class AndroidResources extends AbstractResources {
         notificationTracks = new HashMap<>();
         List<Pair<String, String>> pairs = null;
         try {
-            pairs = XMLWorker.parseDocument(BaseApplication.getContext().getAssets().open("sounds/Notifications.xml"));
+            pairs = XMLWorker.parseDocument(BaseApplication.getActiveContext().getAssets().open("sounds/Notifications.xml"));
         } catch (IOException e) {
             e.printStackTrace();
             pairs = new ArrayList<>();

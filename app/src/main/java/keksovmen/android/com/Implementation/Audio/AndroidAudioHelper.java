@@ -61,7 +61,7 @@ public class AndroidAudioHelper extends AudioHelper {
         MediaPlayer player = new MediaPlayer();
         player.setOnCompletionListener(MediaPlayer::release);
         try {
-            player.setDataSource(BaseApplication.getContext().getAssets().openFd(ROOT_TO_NOTIFICATIONS +
+            player.setDataSource(BaseApplication.getActiveContext().getAssets().openFd(ROOT_TO_NOTIFICATIONS +
                     Resources.getInstance().getNotificationTracks().get(trackId).name));
             player.prepare();
             player.start();

@@ -16,6 +16,8 @@ import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
 
+import keksovmen.android.com.Implementation.BaseApplication;
+
 public class CustomCallDialog extends DialogFragment implements ButtonsHandler, LogicObserver {
 
     private final ButtonsHandler helpHandlerPredecessor;
@@ -79,7 +81,8 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
             case CALL_ACCEPTED:
             case CALL_DENIED:
             case CALL_CANCELLED:
-                dismiss();
+                if (BaseApplication.isVisible())
+                    dismiss();
                 break;
         }
     }

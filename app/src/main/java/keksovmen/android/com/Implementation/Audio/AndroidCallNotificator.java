@@ -19,7 +19,7 @@ public class AndroidCallNotificator extends AbstractCallNotificator {
         isWorking = true;
         player = new MediaPlayer();
         try {
-            player.setDataSource(BaseApplication.getContext().getAssets().openFd("sounds/call/Call.WAV"));
+            player.setDataSource(BaseApplication.getActiveContext().getAssets().openFd("sounds/call/Call.WAV"));
             player.prepare();
             player.setLooping(true);
             player.start();

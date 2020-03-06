@@ -20,7 +20,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Implementation.Views.Activities.MainActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
     </application>
 
 </manifest>

@@ -2,11 +2,16 @@ package keksovmen.android.com.Implementation;
 
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -24,11 +29,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
+import keksovmen.android.com.R;
+
 public class BaseApplication extends Application implements CompositeComponent {
 
     public static final int TEXT_SIZE = 20;
     public static final List<ACTIONS> actionsMapping = Collections.unmodifiableList(Arrays.asList(ACTIONS.values()));
-    private static Context context;
+    private static Context activeContext;
+    private static boolean isVisible = false;
 
     private Handler handler;
 
@@ -44,7 +52,7 @@ public class BaseApplication extends Application implements CompositeComponent {
     @Override
     public void onCreate() {
         super.onCreate();
-        BaseApplication.context = getApplicationContext();
+        BaseApplication.activeContext = getApplicationContext();
         handler = new Handler(Looper.getMainLooper(), this::handlerActions);
 
         listeners = new ArrayList<>();
@@ -123,12 +131,51 @@ public class BaseApplication extends Application implements CompositeComponent {
     }
 
     public static void showDialog(Context context, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(message);
-        builder.show();
+//        if (isVisible) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage(message);
+            builder.show();
+//        }else {
+//            showStringNotification(activeContext, "Notification", message);
+//        }
     }
 
-    public static Context getContext() {
-        return context;
+    public static void showStringNotification(Context context, String title, String message){
+        Log.i("ShowNotification", "Entered the room");
+        final String id = "StringNotification";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, id)
+                .setSmallIcon(R.drawable.ricardo)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+//                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        NotificationManager managerCompat = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    id,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_HIGH);
+            managerCompat.createNotificationChannel(channel);
+            builder.setChannelId(id);
+        }
+        managerCompat.notify(id, 2, builder.build());
+        Log.i("ShowNotification", "Leaved the room");
+    }
+
+    public static Context getActiveContext() {
+        return activeContext;
+    }
+
+    public static boolean isVisible(){
+        return isVisible;
+    }
+
+    public static void setVisible(){
+        isVisible = true;
+    }
+
+    public static void setInvisible(){
+        isVisible = false;
     }
 }

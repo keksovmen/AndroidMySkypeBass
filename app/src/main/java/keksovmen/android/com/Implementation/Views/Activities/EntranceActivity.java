@@ -71,6 +71,18 @@ public class EntranceActivity extends AppCompatActivity implements LogicObserver
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BaseApplication.setVisible();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        BaseApplication.setInvisible();
+    }
+
     public void connect(View view) {
         Object[] data = new String[3];
         data[0] = nameField.getText().toString();

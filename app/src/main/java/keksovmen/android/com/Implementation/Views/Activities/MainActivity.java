@@ -1,7 +1,11 @@
 package keksovmen.android.com.Implementation.Views.Activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -10,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TabHost;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.Abstraction.Client.LogicObserver;
 import com.Abstraction.Model.UnEditableModel;
@@ -33,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
 
     private static final String MULTIPLE_PURPOSE_PANE_NAME = "View";
     private static final String CONVERSATION_TAB_NAME = "Conference";
+    private static final String NOTIFICATION_TAG = "INCOMING";
+    private static final int NOTIFICATION_ID = 1;
 
     private BaseApplication application;
 
@@ -43,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     private CustomCallDialog callDialog;
 
     private Map<String, PageHolder> openTabs;
+
+    private Runnable lockedCall;
+
+    private NotificationManager notificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         application.getLiveData().observe(this, this::modelObservation);
 
         tabHost.setOnTabChangedListener(createTabChangeListener());
+
+        notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
     }
 
@@ -91,6 +104,22 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         if (isFinishing()) {
             handleRequest(BUTTONS.DISCONNECT, null);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BaseApplication.setVisible();
+        if (lockedCall != null) {
+            lockedCall.run();
+            clearLastCall();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        BaseApplication.setInvisible();
     }
 
     @Override
@@ -122,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
                 break;
             case CALL_CANCELLED:
                 BaseApplication.showDialog(this, "call was cancelled by - " + objects[0]);
+                clearLastCall();
                 break;
             case EXITED_CONVERSATION:
                 closeTabAction(CONVERSATION_TAB_NAME);
@@ -152,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
         Intent result = new Intent();
         result.putExtra(EntranceActivity.STATUS_CODE, EntranceActivity.ResultCodes.STATUS_NETWORK_FAILURE.toString());
         setResult(RESULT_OK, result);
+        notificationManager.cancel(NOTIFICATION_TAG, NOTIFICATION_ID);
         finish();
     }
 
@@ -209,7 +240,13 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
     private void handleCall(Object[] data) {
         User who = (User) data[0];
         String dudes = (String) data[1];
-        callDialog.showIncomingDialog(who, dudes, getSupportFragmentManager());
+
+        if (BaseApplication.isVisible()) {
+            callDialog.showIncomingDialog(who, dudes, getSupportFragmentManager());
+        } else {
+            lockedCall = () -> callDialog.showIncomingDialog(who, dudes, getSupportFragmentManager());
+            showNotification("Incoming call", "From " + who.toString());
+        }
     }
 
     private void onCallAccept() {
@@ -245,6 +282,34 @@ public class MainActivity extends AppCompatActivity implements SimpleComponent {
                 holder.setDisplayUnreadMessage(false);
             }
         };
+    }
+
+    private void clearLastCall() {
+        lockedCall = null;
+        notificationManager.cancel(NOTIFICATION_TAG, NOTIFICATION_ID);
+    }
+
+    private void showNotification(String title, String message) {
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_TAG)
+                .setSmallIcon(R.drawable.ricardo)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(fullScreenPendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIFICATION_TAG,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(channel);
+            builder.setChannelId(NOTIFICATION_TAG);
+        }
+        notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, builder.build());
     }
 
     private static void clearTabHostBeforeFilling(TabHost tabHost) {
