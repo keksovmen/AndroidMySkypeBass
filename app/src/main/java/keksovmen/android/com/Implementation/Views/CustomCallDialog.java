@@ -26,6 +26,8 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
     private User user;
     private String dudes;
 
+    private Runnable lastAction;
+
     public CustomCallDialog(ButtonsHandler helpHandlerPredecessor) {
         this.helpHandlerPredecessor = helpHandlerPredecessor;
     }
@@ -52,6 +54,16 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
 
         return builder.create();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (lastAction != null) {
+            lastAction.run();
+            lastAction = null;
+        }
+    }
+
 
     @Override
     public void onCancel(DialogInterface dialog) {
@@ -81,8 +93,11 @@ public class CustomCallDialog extends DialogFragment implements ButtonsHandler, 
             case CALL_ACCEPTED:
             case CALL_DENIED:
             case CALL_CANCELLED:
-                if (BaseApplication.isVisible())
+                if (BaseApplication.isVisible()) {
                     dismiss();
+                } else {
+                    lastAction = this::dismiss;
+                }
                 break;
         }
     }

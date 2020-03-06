@@ -78,7 +78,7 @@ public class BaseApplication extends Application implements CompositeComponent {
     public void observe(ACTIONS actions, Object[] objects) {
         //your actions
         //put on UI thread
-        System.out.println("OBSERVATION - " + actions);
+//        System.out.println("OBSERVATION - " + actions);
         int i = actionsMapping.indexOf(actions);
         handler.obtainMessage(i, objects).sendToTarget();
 
@@ -105,7 +105,6 @@ public class BaseApplication extends Application implements CompositeComponent {
     }
 
     public void setState(LogicObserver holder) {
-        System.out.println("STATE CHANGED TO - " + holder);
         state = holder;
         Message m;
         while ((m = messageQueue.poll()) != null) {
@@ -131,13 +130,9 @@ public class BaseApplication extends Application implements CompositeComponent {
     }
 
     public static void showDialog(Context context, String message) {
-//        if (isVisible) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(message);
             builder.show();
-//        }else {
-//            showStringNotification(activeContext, "Notification", message);
-//        }
     }
 
     public static void showStringNotification(Context context, String title, String message){
@@ -149,7 +144,6 @@ public class BaseApplication extends Application implements CompositeComponent {
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
-//                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         NotificationManager managerCompat = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(

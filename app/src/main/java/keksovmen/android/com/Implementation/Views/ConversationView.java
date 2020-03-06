@@ -98,6 +98,7 @@ public class ConversationView extends BaseMessagingView implements ModelObserver
         ScrollView messageScroll = new ScrollView(context);
         messageScroll.addView(messageDisplay);
         messageScroll.setScrollbarFadingEnabled(false);
+        messageScroll.setOnTouchListener(new TouchListener(context, messageScroll));
 
         linearLayout.addView(settingScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.5f));
         linearLayout.addView(messageScroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));

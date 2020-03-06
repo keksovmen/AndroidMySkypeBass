@@ -74,13 +74,13 @@ public class EntranceActivity extends AppCompatActivity implements LogicObserver
     @Override
     protected void onResume() {
         super.onResume();
-        BaseApplication.setVisible();
+//        BaseApplication.setVisible();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        BaseApplication.setInvisible();
+//        BaseApplication.setInvisible();
     }
 
     public void connect(View view) {

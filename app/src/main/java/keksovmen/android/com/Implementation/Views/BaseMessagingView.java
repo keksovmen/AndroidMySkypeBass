@@ -2,10 +2,13 @@ package keksovmen.android.com.Implementation.Views;
 
 import android.content.Context;
 import android.text.InputType;
+import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -16,7 +19,11 @@ import com.Abstraction.Client.LogicObserver;
 import com.Abstraction.Networking.Utility.Users.User;
 import com.Abstraction.Pipeline.ACTIONS;
 import com.Abstraction.Pipeline.BUTTONS;
+import com.Abstraction.Util.Collection.Track;
 import com.Abstraction.Util.FormatWorker;
+import com.Abstraction.Util.Resources.Resources;
+
+import java.util.Map;
 
 public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler {
 
@@ -51,6 +58,8 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
         closeButton.setOnClickListener(v -> onCloseButtonClick());
 
         textInput.setTooltipText("Type here");
+
+//        messageDisplay.setOnTouchListener(new TouchListener());
     }
 
     public ConstraintLayout getLayout() {
@@ -101,6 +110,7 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
         ScrollView scrollView = new ScrollView(context);
         scrollView.setScrollbarFadingEnabled(false);
         scrollView.addView(messageDisplay);
+        scrollView.setOnTouchListener(new TouchListener(context, scrollView));
         return scrollView;
     }
 
@@ -111,14 +121,14 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
                 from + " (" + FormatWorker.getTime() + ") - " + message + "\n");
     }
 
-    protected void showMyMessage(String message){
+    protected void showMyMessage(String message) {
         messageDisplay.setText(messageDisplay.getText() +
                 "Me" + " (" + FormatWorker.getTime() + ") - " + message + "\n");
     }
 
     protected abstract int getReceiverId();
 
-    private void sendMessage(){
+    private void sendMessage() {
         String message = textInput.getText().toString();
         if (message.length() == 0)
             return;
@@ -134,8 +144,55 @@ public abstract class BaseMessagingView implements LogicObserver, ButtonsHandler
 
     protected abstract void onClose();
 
-    private void onCloseButtonClick(){
+    private void onCloseButtonClick() {
         closeAction.run();
         onClose();
+    }
+
+    protected class TouchListener implements View.OnTouchListener {
+
+        private final PopupMenu popupMenu;
+
+        private float x1;
+        private float y1;
+        private long time1;
+
+        public TouchListener(Context context, View anchor) {
+            popupMenu = new PopupMenu(context, anchor);
+            fillMenu();
+        }
+
+        private void fillMenu(){
+            Menu menu = popupMenu.getMenu();
+            Map<Integer, Track> tracks = Resources.getInstance().getNotificationTracks();
+            tracks.forEach((integer, track) -> {
+                menu.add(track.description).setOnMenuItemClickListener(item -> {
+                    textInput.append(FormatWorker.asMessageMeta(integer));
+                    return true;
+                });
+            });
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    x1 = event.getX();
+                    y1 = event.getY();
+                    time1 = System.currentTimeMillis();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    float x2 = event.getX();
+                    float y2 = event.getY();
+                    long time2 = System.currentTimeMillis();
+                    if (x1 == x2 && y1 == y2 && time2 - time1 > 300){
+                        //show dialog
+                        popupMenu.show();
+                    }
+                    return true;
+
+            }
+            return false;
+        }
     }
 }
