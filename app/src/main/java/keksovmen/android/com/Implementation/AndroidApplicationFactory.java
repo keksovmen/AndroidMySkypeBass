@@ -9,11 +9,13 @@ import com.Abstraction.Client.ButtonsHandler;
 import com.Abstraction.Model.ChangeableModel;
 import com.Abstraction.Pipeline.CompositeComponent;
 import com.Abstraction.Pipeline.SimpleComponent;
+import com.Abstraction.Util.Logging.LogManagerHelper;
 import com.Abstraction.Util.Resources.AbstractResources;
 
 import keksovmen.android.com.Implementation.Audio.AndroidAudioFactory;
 import keksovmen.android.com.Implementation.Audio.AndroidAudioHelper;
 import keksovmen.android.com.Implementation.Client.AndroidClient;
+import keksovmen.android.com.Implementation.Util.Logging.AndroidLogManagerHelper;
 import keksovmen.android.com.Implementation.Util.AndroidResources;
 
 public class AndroidApplicationFactory extends AbstractApplicationFactory {
@@ -53,5 +55,12 @@ public class AndroidApplicationFactory extends AbstractApplicationFactory {
     @Override
     public AudioFactory createAudioFactory() {
         return new AndroidAudioFactory();
+    }
+
+    @Override
+    public LogManagerHelper createLogManager() {
+        AndroidLogManagerHelper managerHelper = new AndroidLogManagerHelper();
+        managerHelper.init();
+        return managerHelper;
     }
 }
